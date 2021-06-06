@@ -1,4 +1,4 @@
-#include "usageCpu.h"
+#include "cpu_usage.h"
 
 #include <stdio.h>
 
