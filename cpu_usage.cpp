@@ -1,12 +1,12 @@
-#include <fstream>
+#include "cpu_usage.h"
+
 #include <stdio.h>
+
 #include <string>
 #include <typeinfo>
 #include <vector>
 #include <bits/stdc++.h>
 #include <unistd.h> // sleep()
-
-std::ifstream f("proc/stat");
 
 namespace helper
 {
@@ -24,12 +24,6 @@ namespace helper
                 x[index] = x[index + 1];
         }
     }
-
-    struct Vals
-    {
-        double val1;
-        double val2;
-    };
 
     Vals monitor()
     {
@@ -86,6 +80,10 @@ namespace helper
     {
         int iteration = 0;
         helper::Vals last_monitor = helper::monitor();
+        
+        // Make space for the 'usage' line.
+        printf( "\n" );
+
         for (;;)
         {
             helper::Vals monitor1 = helper::monitor();
