@@ -1,107 +1,74 @@
+#include "sys_info.h"
+
 #include <iostream>
-#include <sys/utsname.h>
 #include <iomanip>
 #include <fstream>
 
 //LINUX GENERAL SYSTEM AND KERNEL INFO
 
-class linuxInfo
+
+linuxInfo::linuxInfo()
 {
-private:
-    struct utsname uts;
+    uname(&uts);
+}
 
-public:
-    linuxInfo()
-    {
-        uname(&uts);
-    }
+void linuxInfo::KAV()
+{
+    //kernel and version
+    std::cout << uts.sysname << " " << uts.release << " ";
+}
 
-    void KAV()
-    {
-        //kernel and version
-        std::cout << uts.sysname << " " << uts.release << " ";
-    }
+void linuxInfo::Arhitecture()
+{
+    //arhitecture
+    std::cout << uts.machine << " ";
+}
 
-    void Arhitecture()
-    {
-        //arhitecture
-        std::cout << uts.machine << " ";
-    }
+void linuxInfo::distroName()
+{
+    //use command and store output in temp.txt
+    system("cat /etc/os-release | grep -w 'NAME' > temp.txt");
 
-    void distroName()
-    {
-        //use command and store output in temp.txt
-        system("cat /etc/os-release | grep -w 'NAME' > temp.txt");
+    //init file and read everything from it
+    std::ifstream f("temp.txt");
 
-        //init file and read everything from it
-        std::ifstream f("temp.txt");
+    std::string str((std::istreambuf_iterator<char>(f)),
+                    std::istreambuf_iterator<char>());
 
-        std::string str((std::istreambuf_iterator<char>(f)),
-                        std::istreambuf_iterator<char>());
-
-        //close stream , remove the file and format output
-        f.close();
-        remove("temp.txt");
-        std::cout << str.erase(0, 5);
-    }
-};
+    //close stream , remove the file and format output
+    f.close();
+    remove("temp.txt");
+    std::cout << str.erase(0, 5);
+}
 
 //UPTIME , RAM , NUMBER OF PROCESSES
 
-#include <sys/sysinfo.h>
 
-class sysInfo
+sysInfo::sysInfo()
 {
-public:
-    struct sysinfo info;
-
-    struct impSysInfo
-    {
-        unsigned long totalram;
-        unsigned long procs;
-        long uptime;
-    };
-    sysInfo()
-    {
-        sysinfo(&info);
-    }
-
-    void uptime(int s)
-    {
-        //seconds to time
-        int minutes = 0, hours = 0;
-
-        minutes = s / 60, s -= (minutes * 60);
-
-        hours = minutes / 60, minutes -= (hours * 60);
-
-        std::cout << hours << " hours " << minutes << " minutes " << s << " seconds ";
-    }
-
-    impSysInfo getValues()
-    {
-        impSysInfo Container;
-
-        Container.totalram = info.totalram;
-
-        Container.procs = info.procs, Container.uptime = info.uptime;
-
-        return Container;
-    }
-};
-
-/*
-int main()
-{
-
-
-    sysInfo sysInfox;
-
-    sysInfox.uptime(sysInfox.info.uptime);
-
-    sysInfo::impSysInfo Container = sysInfox.getValues();
-
-    std::cout << std::endl
-              << Container.totalram << " " << Container.procs << " " << Container.uptime;
+    sysinfo(&info);
 }
-*/
+
+std::string sysInfo::uptime( int s )
+{
+    //seconds to time
+    int minutes = 0, hours = 0;
+
+    minutes = s / 60, s -= (minutes * 60);
+
+    hours = minutes / 60, minutes -= (hours * 60);
+
+    return std::to_string( hours ) + " hours " + std::to_string( minutes ) + " minutes " + std::to_string( s ) + " seconds ";
+
+}
+
+sysInfo::impSysInfo sysInfo::getValues()
+{
+    impSysInfo Container;
+
+    Container.totalram = info.totalram;
+
+    Container.procs = info.procs, Container.uptime = info.uptime;
+
+    return Container;
+}
